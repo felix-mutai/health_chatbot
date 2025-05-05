@@ -7,6 +7,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
 from tensorflow.keras.models import load_model
 import nltk
+
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
@@ -51,18 +52,33 @@ def get_response(intents_list, intents_json):
 
     return "Hmm, I couldn't find a good answer to that."
 
-# Streamlit UI
+# Streamlit UI setup
 st.set_page_config(page_title="Health Chatbot", page_icon="💬")
 st.title("🩺 Health Chatbot")
 st.markdown("Ask a health-related question and I’ll try to help!")
 
-# Input form
-user_input = st.text_input("👤 You:", "")
+# Session state initialization
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
 
+# User input
+user_input = st.text_input("👤 You:")
+
+# Process input and update chat
 if user_input:
     predictions = predict_class(user_input)
-    response = get_response(predictions, intents)
-    st.markdown(f"💬 **Bot:** {response}")
+    bot_response = get_response(predictions, intents)
+    
+    # Store messages
+    st.session_state.chat_history.append(("You", user_input))
+    st.session_state.chat_history.append(("Bot", bot_response))
 
-# Display the option to ask more questions
+# Display chat history
+for sender, message in st.session_state.chat_history:
+    if sender == "You":
+        st.markdown(f"👤 **You**: {message}")
+    else:
+        st.markdown(f"💬 **Bot**: {message}")
+
+st.markdown("---")
 st.markdown("You can continue asking more health-related questions or type 'exit' to stop.")
