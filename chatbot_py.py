@@ -81,6 +81,3 @@ if submitted and user_input:
 
     # Add bot reply to chat history
     st.session_state.messages.append({"role": "bot", "content": bot_response})
-
-    # Rerun to display updated chat
-    st.experimental_rerun()
