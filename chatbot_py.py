@@ -6,6 +6,9 @@ import pickle
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
 from tensorflow.keras.models import load_model
+import nltk
+nltk.download('wordnet')
+nltk.download('omw-1.4') 
 
 # Initialize tokenizer and lemmatizer
 tokenizer = RegexpTokenizer(r'\w+')
