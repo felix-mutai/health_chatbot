@@ -39,11 +39,15 @@ def predict_class(sentence):
 
 def get_response(intents_list, intents_json):
     if not intents_list:
-        return "I'm sorry, I didn't understand that. Please try asking something else."
+        return "I'm sorry, I didn't understand that."
+
     tag = intents_list[0]['intent']
     for intent in intents_json['intents']:
         if intent['tag'] == tag:
             return random.choice(intent['responses'])
+
+    # If no intent matched
+    return "Hmm, I couldn't find a good answer to that."
 
 # Streamlit UI
 st.set_page_config(page_title="Health Chatbot", page_icon="💬")
