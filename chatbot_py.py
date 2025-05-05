@@ -8,7 +8,7 @@ from nltk.tokenize import RegexpTokenizer
 from tensorflow.keras.models import load_model
 import nltk
 nltk.download('wordnet')
-nltk.download('omw-1.4') 
+nltk.download('omw-1.4')
 
 # Initialize tokenizer and lemmatizer
 tokenizer = RegexpTokenizer(r'\w+')
@@ -49,7 +49,6 @@ def get_response(intents_list, intents_json):
         if intent['tag'] == tag:
             return random.choice(intent['responses'])
 
-    # If no intent matched
     return "Hmm, I couldn't find a good answer to that."
 
 # Streamlit UI
@@ -57,9 +56,13 @@ st.set_page_config(page_title="Health Chatbot", page_icon="💬")
 st.title("🩺 Health Chatbot")
 st.markdown("Ask a health-related question and I’ll try to help!")
 
+# Input form
 user_input = st.text_input("👤 You:", "")
 
 if user_input:
     predictions = predict_class(user_input)
     response = get_response(predictions, intents)
     st.markdown(f"💬 **Bot:** {response}")
+
+# Display the option to ask more questions
+st.markdown("You can continue asking more health-related questions or type 'exit' to stop.")
