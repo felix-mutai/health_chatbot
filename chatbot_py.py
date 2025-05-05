@@ -23,7 +23,7 @@ words = pickle.load(open('words.pkl', 'rb'))
 classes = pickle.load(open('classes.pkl', 'rb'))
 model = load_model('chatbotmodel.h5')
 
-# Clean and preprocess input
+# NLP Processing
 def clean_up_sentence(sentence):
     sentence_words = tokenizer.tokenize(sentence.lower())
     return [lemmatizer.lemmatize(word) for word in sentence_words]
@@ -44,12 +44,10 @@ def predict_class(sentence):
 def get_response(intents_list, intents_json):
     if not intents_list:
         return "I'm sorry, I didn't understand that."
-
     tag = intents_list[0]['intent']
     for intent in intents_json['intents']:
         if intent['tag'] == tag:
             return random.choice(intent['responses'])
-
     return "Hmm, I couldn't find a good answer to that."
 
 # Streamlit UI setup
@@ -57,31 +55,32 @@ st.set_page_config(page_title="Health Chatbot", page_icon="💬")
 st.title("🩺 Health Chatbot")
 st.markdown("Ask a health-related question and I’ll try to help!")
 
-# Session state initialization
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# User input with a dedicated key
-user_input = st.text_input("👤 You:", key="user_input")
+# Display previous chat
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.markdown(f"👤 **You**: {msg['content']}")
+    else:
+        st.markdown(f"💬 **Bot**: {msg['content']}")
 
-# Process input and update chat
-if user_input.strip():  # Check for non-empty input
+# Chat input form
+with st.form("chat_input_form", clear_on_submit=True):
+    user_input = st.text_input("Type your question below:", "")
+    submitted = st.form_submit_button("Send")
+
+if submitted and user_input:
+    # Add user input to chat history
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    # Get bot response
     predictions = predict_class(user_input)
     bot_response = get_response(predictions, intents)
-    
-    # Store messages
-    st.session_state.chat_history.append(("You", user_input))
-    st.session_state.chat_history.append(("Bot", bot_response))
-    
-    # Clear input field after processing
-    st.session_state.user_input = ""
 
-# Display chat history
-for sender, message in st.session_state.chat_history:
-    if sender == "You":
-        st.markdown(f"👤 **You**: {message}")
-    else:
-        st.markdown(f"💬 **Bot**: {message}")
+    # Add bot reply to chat history
+    st.session_state.messages.append({"role": "bot", "content": bot_response})
 
-st.markdown("---")
-st.markdown("You can continue asking more health-related questions or type 'exit' to stop.")
+    # Rerun to display updated chat
+    st.experimental_rerun()
