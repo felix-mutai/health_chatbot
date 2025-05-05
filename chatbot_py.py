@@ -61,17 +61,20 @@ st.markdown("Ask a health-related question and I’ll try to help!")
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
-# User input
-user_input = st.text_input("👤 You:")
+# User input with a dedicated key
+user_input = st.text_input("👤 You:", key="user_input")
 
 # Process input and update chat
-if user_input:
+if user_input.strip():  # Check for non-empty input
     predictions = predict_class(user_input)
     bot_response = get_response(predictions, intents)
     
     # Store messages
     st.session_state.chat_history.append(("You", user_input))
     st.session_state.chat_history.append(("Bot", bot_response))
+    
+    # Clear input field after processing
+    st.session_state.user_input = ""
 
 # Display chat history
 for sender, message in st.session_state.chat_history:
